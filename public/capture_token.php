@@ -59,9 +59,9 @@ if ($token) {
                     <strong>Instructions:</strong><br>
                     1. Go to Angel One App Settings.<br>
                     2. Set <strong>Redirect URL</strong> to:<br>
-                    <code>http://127.0.0.1/optionSignal/public/capture_token.php</code><br>
-                    3. Save your <strong>Market API Key</strong> in this app's Settings.<br>
-                    4. Use the Publisher Login link below.
+                    <code><?= "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['SCRIPT_NAME'] ?></code><br>
+                    3. Save your <strong>Market API Key</strong> in THIS app's Settings page.<br>
+                    4. Once saved, a green <strong>Login</strong> button will appear below.
                 </p>
                 <hr>
                 <!-- NOTE: User needs to insert their API KEY here for the link to work -->

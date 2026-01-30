@@ -6,28 +6,31 @@ require_once __DIR__ . '/../../src/MarketAPI.php';
 require_once __DIR__ . '/../../src/SignalEngine.php';
 
 try {
-    // Initialize components
-    $settings = new Settings();
-    $apiKey = $settings->get('api_key') ?? 'demo_key'; // Fallback for testing
-    $apiUrl = $settings->get('api_url') ?? 'https://api.example.com';
+    $timeframe = $_GET['timeframe'] ?? '15min';
+    $mode = $_GET['mode'] ?? 'live';
+    $threshold = floatval($_GET['threshold'] ?? 2.0); // Default 2.0 = 100% gain
     
-    $marketApi = new MarketAPI($apiKey, $apiUrl);
-    $engine = new SignalEngine($marketApi);
-
-    $timeframe = $_GET['timeframe'] ?? '1min';
+    // Default Dates
+    $fromDate = date('Y-m-d 09:15');
+    $toDate = date('Y-m-d H:i');
     
-    // Run Scan
-    $results = $engine->scan($timeframe);
+    if ($mode === 'backtest') {
+        // User inputs
+        $inDate = $_GET['date'] ?? date('Y-m-d', strtotime('-1 day')); // Default yesterday
+        $inFromTime = $_GET['fromTime'] ?? '09:15';
+        $inToTime = $_GET['toTime'] ?? '15:30';
+        
+        $fromDate = "$inDate $inFromTime";
+        $toDate = "$inDate $inToTime";
+    }
 
-    echo json_encode([
-        'status' => 'success',
-        'data' => $results
-    ]);
-
+    $api = new MarketAPI();
+    $engine = new SignalEngine($api);
+    
+    $results = $engine->scan($timeframe, $fromDate, $toDate, $threshold);
+    
+    echo json_encode(['status' => 'success', 'data' => $results['signals'], 'debug' => $results['debug']]);
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => $e->getMessage()
-    ]);
+    echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
 }

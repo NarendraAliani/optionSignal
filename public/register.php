@@ -15,10 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
+require_once __DIR__ . '/../src/Captcha.php';
+
     if (empty($username) || empty($password)) {
         $error = "Please fill in all fields.";
     } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
+    } elseif (!Captcha::verify($_POST['captcha'])) {
+        $error = "Invalid Captcha. Please try again.";
     } else {
         $db = Database::getInstance()->getConnection();
         
@@ -68,6 +72,14 @@ require_once __DIR__ . '/includes/navbar.php';
                 <div class="mb-3">
                     <label>Confirm Password</label>
                     <input type="password" name="confirm_password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Security Code</label>
+                    <div class="d-flex align-items-center mb-2">
+                        <img src="captcha_image.php" alt="Captcha" class="border me-2" style="height:40px;">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="document.querySelector('img[alt=Captcha]').src='captcha_image.php?'+Math.random()">Refresh</button>
+                    </div>
+                    <input type="text" name="captcha" class="form-control" placeholder="Enter code" required autocomplete="off">
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Register</button>
             </form>

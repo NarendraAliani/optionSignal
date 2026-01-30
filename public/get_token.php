@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "All fields are required, including API Key.";
     } else {
         // ... (API Call) ...
-        $url = "https://apiconnect.angelbroking.com/rest/secure/angelbroking/user/v1/loginByPassword";
+        $url = "https://apiconnect.angelone.in/rest/secure/angelbroking/user/v1/loginByPassword";
         
         // ... request setup ...
         $body = json_encode([

@@ -1,0 +1,74 @@
+{
+    "info": {
+        "_postman_id": "angel-one-auth",
+        "name": "Angel One Authentication",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Login (Get JWT Token)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json",
+                        "type": "text"
+                    },
+                    {
+                        "key": "X-UserType",
+                        "value": "USER",
+                        "type": "text"
+                    },
+                    {
+                        "key": "X-SourceID",
+                        "value": "WEB",
+                        "type": "text"
+                    }, {
+                        "key": "X-ClientLocalIP",
+                        "value": "127.0.0.1",
+                        "type": "text"
+                    }, {
+                        "key": "X-ClientPublicIP",
+                        "value": "127.0.0.1",
+                        "type": "text"
+                    }, {
+                        "key": "X-MACAddress",
+                        "value": "02-00-00-00-00-00",
+                        "type": "text"
+                    }, {
+                        "key": "X-PrivateKey",
+                        "value": "YOUR_MARKET_API_KEY_HERE",
+                        "type": "text",
+                        "description": "Found in Angel One App Dashboard"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"clientcode\": \"YOUR_CLIENT_ID\",\n    \"password\": \"YOUR_MPIN\",\n    \"totp\": \"YOUR_TOTP_CODE\"\n}"
+                },
+                "url": {
+                    "raw": "https://apiconnect.angelone.in/rest/auth/angelbroking/user/v1/loginByPassword",
+                    "protocol": "https",
+                    "host": [
+                        "apiconnect", "angelone", "in"
+                    ],
+                    "path": [
+                        "rest",
+                        "auth",
+                        "angelbroking",
+                        "user",
+                        "v1",
+                        "loginByPassword"
+                    ]
+                }
+            },
+            "response": []
+        }
+    ]
+}

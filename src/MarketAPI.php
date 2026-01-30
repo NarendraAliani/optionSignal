@@ -7,7 +7,7 @@ class MarketAPI {
     private $marketKey;
     private $histKey;
     private $accessToken;
-    private $baseUrl = 'https://apiconnect.angelbroking.com';
+    private $baseUrl = 'https://apiconnect.angelone.in';
 
     public function __construct() {
         $settings = new Settings();
@@ -133,6 +133,41 @@ class MarketAPI {
         return $candles;
     }
 
+    /**
+     * Get Option Greeks
+     * Endpoint: /rest/secure/angelbroking/marketData/v1/optionGreek
+     */
+    public function getOptionGreeks($name, $expiry) {
+        if ($this->accessToken === 'demo_key') return [];
+
+        $url = $this->baseUrl . "/rest/secure/angelbroking/marketData/v1/optionGreek";
+        
+        // Expiry format needs to be DDMMMYYYY (e.g., 25JAN2024)
+        // Ensure input is formatted or format it here. 
+        // Assuming $expiry input is "2024-01-25" from DB
+        $expDate = date('dMY', strtotime($expiry));
+        $expDate = strtoupper($expDate);
+
+        $body = json_encode([
+            "name" => $name, // Underlying Name (e.g. TCS)
+            "expirydate" => $expDate
+        ]);
+
+        $headers = [
+            "Content-Type: application/json",
+            "X-PrivateKey: " . $this->marketKey,
+            "Authorization: Bearer " . $this->accessToken
+        ];
+
+        $response = $this->makePostRequest($url, $headers, $body);
+        
+        if (isset($response['data'])) {
+            return $response['data'];
+        }
+        return [];
+    }
+    
+    // Helper to request greeks
     private function makePostRequest($url, $headers, $body) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);

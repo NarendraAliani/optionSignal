@@ -10,9 +10,22 @@ $message = "";
 $masterUrl = "https://margincalculator.angelbroking.com/OpenAPIScripMaster.json";
 
 if (isset($_POST['download'])) {
-    $message .= "Downloading Scrip Master...<br>";
-    $json = file_get_contents($masterUrl);
-    if ($json) {
+    $message .= "Downloading Scrip Master (via cURL)...<br>";
+    
+    // Use cURL for better compatibility (Shared hosts often disable file_get_contents for URLs)
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $masterUrl);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Handle potential SSL issues on host
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes timeout for large file
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36');
+    
+    $json = curl_exec($ch);
+    $error = curl_error($ch);
+    curl_close($ch);
+
+    if ($json && !$error) {
         $data = json_decode($json, true);
         $message .= "Download Complete. Total Scrips: " . count($data) . "<br>";
         
@@ -24,10 +37,44 @@ if (isset($_POST['download'])) {
             // $pdo->exec("TRUNCATE TABLE option_contracts"); // Dangerous if we want to keep history, but for now we want fresh tokens
             
             $count = 0;
+            
+            // 1. First Pass: Find & Insert Underlying Indices (NIFTY, BANKNIFTY)
+            // We need their NSE Tokens for fetching CMP (LTP)
+            $indices = [
+                'Nifty 50' => 'NIFTY',
+                'Nifty Bank' => 'BANKNIFTY'
+            ];
+            
+            $stockTokens = [];
+            
+            foreach ($data as $scrip) {
+                if ($scrip['exch_seg'] == 'NSE' && array_key_exists($scrip['name'], $indices)) { // Angel uses "Nifty 50" for name
+                    $symbol = $indices[$scrip['name']]; // Map "Nifty 50" -> "NIFTY"
+                    $token = $scrip['token'];
+                    
+                    // Insert/Update Stock
+                    $stmtStock = $pdo->prepare("INSERT INTO stocks (symbol, name, token, lot_size, is_active) VALUES (?, ?, ?, ?, 1) ON DUPLICATE KEY UPDATE token=VALUES(token)");
+                    // Lot sizes: Nifty 50, BN 15 (Standard defaults, can be updated)
+                    $lot = ($symbol == 'NIFTY') ? 50 : 15;
+                    $stmtStock->execute([$symbol, $scrip['name'], $token, $lot]);
+                    
+                    $stockTokens[$symbol] = $token;
+                }
+            }
+            
+            // Fallback if not found in JSON (Indices sometimes have weird names/segments)
+            // Hardcoded known index tokens for Angel One if loop failed
+            if (!isset($stockTokens['NIFTY'])) {
+                 $pdo->exec("INSERT INTO stocks (symbol, name, token, lot_size, is_active) VALUES ('NIFTY', 'Nifty 50', '99926000', 50, 1) ON DUPLICATE KEY UPDATE token='99926000'");
+            }
+            if (!isset($stockTokens['BANKNIFTY'])) {
+                 $pdo->exec("INSERT INTO stocks (symbol, name, token, lot_size, is_active) VALUES ('BANKNIFTY', 'Nifty Bank', '99926009', 15, 1) ON DUPLICATE KEY UPDATE token='99926009'");
+            }
+
+            // Reload IDs
             $niftyId = $pdo->query("SELECT id FROM stocks WHERE symbol='NIFTY'")->fetchColumn();
             $bankniftyId = $pdo->query("SELECT id FROM stocks WHERE symbol='BANKNIFTY'")->fetchColumn();
             
-            // Map names to IDs
             $stockMap = [
                 'NIFTY' => $niftyId,
                 'BANKNIFTY' => $bankniftyId

@@ -1,7 +1,7 @@
 <?php
 
 // Database Configuration
-define('DB_HOST', 'localhost');
+define('DB_HOST', '127.0.0.1'); // Fixed for CLI
 define('DB_NAME', 'option_signal');
 define('DB_USER', 'root');
 define('DB_PASS', '');

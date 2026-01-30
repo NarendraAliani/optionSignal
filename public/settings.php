@@ -38,7 +38,7 @@ require_once __DIR__ . '/includes/navbar.php';
                     <form method="POST">
                         <div class="alert alert-info">
                             <small>
-                                <strong>Note:</strong> You need to generate the <code>Access Token</code> using your Client ID, Password, and TOTP. <a href="get_token.php" class="alert-link">Click here to Generate Token</a>.
+                                <strong>Note:</strong> You need to login to Angel One to authorize this scanner. <a href="capture_token.php" class="alert-link">Click here to Login & Capture Token</a>.
                             </small>
                         </div>
                         
@@ -54,8 +54,8 @@ require_once __DIR__ . '/includes/navbar.php';
 
                         <div class="mb-3">
                             <label class="form-label">Access Token (JWT)</label>
-                            <textarea name="access_token" class="form-control" rows="3" placeholder="ey..." required><?= htmlspecialchars($currentSettings['access_token'] ?? '') ?></textarea>
-                            <div class="form-text">Paste the active 'Authorization' Bearer token here.</div>
+                            <textarea name="access_token" class="form-control" rows="3" placeholder="ey... (Optional if capturing automatically)"><?= htmlspecialchars($currentSettings['access_token'] ?? '') ?></textarea>
+                            <div class="form-text">Leave empty if you plan to use 'Login with Angel One'.</div>
                         </div>
 
                         <button type="submit" class="btn btn-success">Update Credentials</button>

@@ -46,8 +46,12 @@ class Settings {
 
     // Decryption
     private function decrypt($data) {
-        if (strpos($data, '::') === false) return $data; // Return raw if not encrypted format
-        list($encrypted_data, $iv) = explode('::', base64_decode($data), 2);
+        $decoded = base64_decode($data, true);
+        if ($decoded === false || strpos($decoded, '::') === false) {
+            return $data; // Return raw if decoding fails or format is wrong
+        }
+        
+        list($encrypted_data, $iv) = explode('::', $decoded, 2);
         return openssl_decrypt($encrypted_data, 'aes-256-cbc', $this->encryptionKey, 0, $iv);
     }
 }

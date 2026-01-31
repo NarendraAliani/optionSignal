@@ -1,0 +1,13 @@
+DEBUGGING SIGNAL LOGIC
+----------------------
+Checking Stocks:
+ID: 1, Symbol: NIFTY, Name: Nifty 50, Token: 26000
+  -> Checking Contracts for StockID 1...
+     Count: 1598
+     Strike Range (DB): 12000.00 - 34500.00
+     Simulating Query (Range 22788 - 27852, >= Today):
+     Matches Found: 1308
+ID: 2, Symbol: BANKNIFTY, Name: Nifty Bank, Token: 26009
+  -> Checking Contracts for StockID 2...
+     Count: 830
+     Strike Range (DB): 46500.00 - 67500.00
